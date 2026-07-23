@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#05070d" />
+<meta name="description" content="LevelList — เปลี่ยนงานประจำวันให้เป็น RPG" />
+<title>LevelList — THE SYSTEM</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2305070d'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle'%3E%E2%9A%94%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ============ SYSTEM BOOT OVERLAY ============ -->
+<div id="bootOverlay" class="boot-overlay">
+  <div class="boot-text">
+    <span class="boot-bracket">[</span> INITIALIZING SYSTEM <span class="boot-bracket">]</span>
+  </div>
+  <div class="boot-bar"><div class="boot-bar-fill"></div></div>
+</div>
+
+<!-- ============ APP ROOT ============ -->
+<div id="app" class="app hidden">
+
+  <!-- ---------- TOP SCAN LINE DECOR ---------- -->
+  <div class="scanline" aria-hidden="true"></div>
+
+  <!-- ---------- PAGE: HOME ---------- -->
+  <main id="page-home" class="page active">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <span class="topbar-mark">⚔</span>
+        <span class="topbar-title">THE SYSTEM</span>
+      </div>
+      <button id="btnSoundToggleTop" class="icon-btn" aria-label="สลับเสียง" title="สลับเสียง">🔊</button>
+    </header>
+
+    <!-- Hunter Status Card -->
+    <section class="card hunter-card" id="hunterCard">
+      <div class="hunter-card-glow" aria-hidden="true"></div>
+      <div class="hunter-top">
+        <div class="avatar-ring">
+          <span id="homeAvatarIcon" class="avatar-icon">🧙</span>
+        </div>
+        <div class="hunter-info">
+          <div class="hunter-name" id="homeUsername">MoonShy</div>
+          <div class="hunter-title" id="homeTitle">Shadow Candidate</div>
+          <div class="hunter-badges">
+            <span class="badge badge-rank" id="homeRank">RANK A</span>
+            <span class="badge badge-level" id="homeLevel">LV. 32</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="xp-block">
+        <div class="xp-labels">
+          <span>XP</span>
+          <span id="xpNumbers">0 / 100</span>
+        </div>
+        <div class="xp-bar-track">
+          <div id="xpBarFill" class="xp-bar-fill"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Daily Status -->
+    <section class="card daily-card">
+      <div class="section-label"><span class="section-label-icon">◆</span> DAILY STATUS</div>
+      <div class="daily-grid">
+        <div class="daily-stat">
+          <div class="daily-stat-value" id="dailyDoneTotal">0 / 0</div>
+          <div class="daily-stat-label">เควสสำเร็จ</div>
+        </div>
+        <div class="daily-stat">
+          <div class="daily-stat-value" id="dailyPercent">0%</div>
+          <div class="daily-stat-label">ความสำเร็จ</div>
+        </div>
+        <div class="daily-stat">
+          <div class="daily-stat-value" id="dailyStreak">0 🔥</div>
+          <div class="daily-stat-label">Streak</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Today's Quests -->
+    <section class="quest-section">
+      <div class="section-label"><span class="section-label-icon">◆</span> TODAY'S QUEST</div>
+      <div id="todayQuestList" class="quest-list">
+        <!-- injected -->
+      </div>
+      <div id="todayEmptyState" class="empty-state hidden">
+        <div class="empty-icon">📭</div>
+        <div class="empty-title">ไม่มีเควสสำหรับวันนี้</div>
+        <div class="empty-sub">กด + เพื่อสร้างเควสใหม่</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ---------- PAGE: ADD QUEST ---------- -->
+  <main id="page-add" class="page">
+    <header class="topbar">
+      <div class="topbar-brand"><span class="topbar-title">จัดการเควส</span></div>
+    </header>
+
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input id="questSearchInput" type="text" placeholder="ค้นหาเควส..." />
+    </div>
+
+    <button id="btnOpenQuestForm" class="btn btn-primary btn-block">+ สร้างเควสใหม่</button>
+
+    <section class="quest-section">
+      <div class="section-label"><span class="section-label-icon">◆</span> เควสทั้งหมด</div>
+      <div id="allQuestList" class="quest-list"></div>
+      <div id="allEmptyState" class="empty-state hidden">
+        <div class="empty-icon">🗒️</div>
+        <div class="empty-title">ยังไม่มีเควส</div>
+        <div class="empty-sub">เริ่มสร้างเควสแรกของคุณ</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ---------- PAGE: RECORDS ---------- -->
+  <main id="page-records" class="page">
+    <header class="topbar">
+      <div class="topbar-brand"><span class="topbar-title">Records</span></div>
+    </header>
+
+    <div class="tabbar" id="recordsTabbar">
+      <button class="tab-btn active" data-tab="stats">สถิติ</button>
+      <button class="tab-btn" data-tab="achievements">Achievement</button>
+      <button class="tab-btn" data-tab="titles">Title</button>
+      <button class="tab-btn" data-tab="history">History</button>
+    </div>
+
+    <div id="tab-stats" class="tab-panel active">
+      <div class="stat-grid" id="statGrid"></div>
+    </div>
+
+    <div id="tab-achievements" class="tab-panel">
+      <div class="section-label sub">ปลดล็อกแล้ว</div>
+      <div id="achUnlocked" class="ach-list"></div>
+      <div class="section-label sub">ยังไม่ปลดล็อก</div>
+      <div id="achLocked" class="ach-list"></div>
+    </div>
+
+    <div id="tab-titles" class="tab-panel">
+      <div class="section-label sub">Title ปัจจุบัน</div>
+      <div id="currentTitleCard" class="current-title-card"></div>
+      <div class="section-label sub">Title Collection</div>
+      <div id="titleList" class="title-list"></div>
+    </div>
+
+    <div id="tab-history" class="tab-panel">
+      <div id="historyList" class="history-list"></div>
+      <div id="historyEmpty" class="empty-state hidden">
+        <div class="empty-icon">🕓</div>
+        <div class="empty-title">ยังไม่มีประวัติ</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ---------- PAGE: SETTINGS ---------- -->
+  <main id="page-settings" class="page">
+    <header class="topbar">
+      <div class="topbar-brand"><span class="topbar-title">ตั้งค่า</span></div>
+    </header>
+
+    <section class="card">
+      <div class="section-label sub">ผู้เล่น</div>
+      <label class="field-label">ชื่อผู้เล่น</label>
+      <input id="settingsUsername" type="text" class="text-input" maxlength="20" />
+
+      <label class="field-label">Avatar</label>
+      <div id="avatarGrid" class="avatar-grid"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-label sub">เสียง</div>
+      <div class="switch-row">
+        <span>เปิดใช้งานเสียง</span>
+        <button id="soundSwitch" class="switch" role="switch" aria-checked="true"><span class="switch-knob"></span></button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-label sub">ข้อมูล</div>
+      <button id="btnExport" class="btn btn-ghost btn-block">Export Data</button>
+      <button id="btnImport" class="btn btn-ghost btn-block">Import Data</button>
+      <input type="file" id="importFileInput" accept="application/json" class="hidden" />
+      <button id="btnReset" class="btn btn-danger btn-block">Reset Data</button>
+    </section>
+
+    <section class="card about-card">
+      <div class="section-label sub">About</div>
+      <div class="about-row"><span>Version</span><span>1.0.0</span></div>
+      <div class="about-row"><span>Developer</span><span>LevelList Studio</span></div>
+    </section>
+  </main>
+
+  <!-- ---------- BOTTOM NAVIGATION ---------- -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-btn active" data-page="home">
+      <span class="nav-icon">🏠</span><span class="nav-label">Home</span>
+    </button>
+    <button class="nav-btn" data-page="add">
+      <span class="nav-icon">➕</span><span class="nav-label">เพิ่มเควส</span>
+    </button>
+    <button class="nav-btn" data-page="records">
+      <span class="nav-icon">📜</span><span class="nav-label">Records</span>
+    </button>
+    <button class="nav-btn" data-page="settings">
+      <span class="nav-icon">⚙️</span><span class="nav-label">ตั้งค่า</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ============ QUEST FORM MODAL ============ -->
+<div id="questFormModal" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span id="questFormTitle">สร้างเควสใหม่</span>
+      <button id="btnCloseQuestForm" class="icon-btn">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <input type="hidden" id="questId" />
+
+      <label class="field-label">ชื่อเควส</label>
+      <input id="questName" type="text" class="text-input" placeholder="เช่น อ่านหนังสือ 30 นาที" />
+
+      <label class="field-label">หมวดหมู่</label>
+      <input id="questCategory" type="text" class="text-input" placeholder="เช่น สุขภาพ, งาน, การเรียน" />
+
+      <label class="field-label">Rank ความยาก</label>
+      <div id="rankPicker" class="pill-picker">
+        <button type="button" class="pill" data-rank="E">E</button>
+        <button type="button" class="pill" data-rank="D">D</button>
+        <button type="button" class="pill" data-rank="C">C</button>
+        <button type="button" class="pill" data-rank="B">B</button>
+        <button type="button" class="pill" data-rank="A">A</button>
+        <button type="button" class="pill" data-rank="S">S</button>
+      </div>
+
+      <label class="field-label">XP ที่ได้รับ</label>
+      <input id="questXP" type="number" class="text-input" min="1" value="10" />
+
+      <label class="field-label">ประเภทเควส</label>
+      <div id="typePicker" class="pill-picker two-col">
+        <button type="button" class="pill wide" data-type="onetime">One Time Quest</button>
+        <button type="button" class="pill wide" data-type="repeat">Repeat Quest</button>
+      </div>
+
+      <div id="repeatDaysBlock" class="hidden">
+        <label class="field-label">เลือกวัน</label>
+        <div id="dayPicker" class="pill-picker day-picker">
+          <button type="button" class="pill day" data-day="1">จ.</button>
+          <button type="button" class="pill day" data-day="2">อ.</button>
+          <button type="button" class="pill day" data-day="3">พ.</button>
+          <button type="button" class="pill day" data-day="4">พฤ.</button>
+          <button type="button" class="pill day" data-day="5">ศ.</button>
+          <button type="button" class="pill day" data-day="6">ส.</button>
+          <button type="button" class="pill day" data-day="0">อา.</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button id="btnDeleteQuest" class="btn btn-danger hidden">ลบ</button>
+      <button id="btnSaveQuest" class="btn btn-primary btn-block">บันทึกเควส</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SYSTEM POPUP ============ -->
+<div id="systemPopup" class="popup-overlay hidden">
+  <div class="popup-box" id="popupBox">
+    <div class="popup-glow" aria-hidden="true"></div>
+    <div class="popup-eyebrow" id="popupEyebrow">QUEST COMPLETE</div>
+    <div class="popup-icon" id="popupIcon">✅</div>
+    <div class="popup-title" id="popupTitle">เควสสำเร็จ!</div>
+    <div class="popup-sub" id="popupSub">+10 XP</div>
+    <button class="btn btn-primary btn-block" id="popupCloseBtn">ตกลง</button>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="js/utils.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/popup.js"></script>
+<script src="js/avatar.js"></script>
+<script src="js/xp.js"></script>
+<script src="js/level.js"></script>
+<script src="js/rank.js"></script>
+<script src="js/streak.js"></script>
+<script src="js/quest.js"></script>
+<script src="js/records.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW registration failed', err));
+    });
+  }
+</script>
+</body>
+
+</html>
